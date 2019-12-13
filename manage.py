@@ -2,9 +2,15 @@
 import os
 import sys
 
+from main.util.logger.init_logger import get_logger
+
+logger = get_logger(__name__)
+
 
 def main():
+    logger.info('Enter main')
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
+    logger.info('Finish import main.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
