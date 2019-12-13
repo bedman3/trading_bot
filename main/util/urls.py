@@ -12,7 +12,7 @@ def get_url_patterns() -> list:
         path('', debug.default_urlconf),
         path('admin/', admin.site.urls),
         path('accounts/login/', LoginView.as_view(
-            template_name='/admin/login.html',
+            template_name='admin/login.html',
             extra_context={
                 'site_header': 'User Login',
             }
