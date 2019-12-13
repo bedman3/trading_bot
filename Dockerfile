@@ -10,4 +10,4 @@ RUN ./download_chromedriver.sh
 
 EXPOSE 8000
 
-CMD ["daphne", "-b", "0.0.0.0", "main.asgi:application"]
+CMD ["uwsgi", "-ini", "uwsgi.ini"]
