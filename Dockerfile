@@ -3,7 +3,7 @@ FROM python
 COPY . /trading_bot
 WORKDIR /trading_bot
 
-RUN /bin/bash -c "source setup_script.sh"
+SHELL ["/bin/bash", "-c", "source setup_script.sh"]
 RUN export
 
 ENV PYTHONPATH=/trading_bot
