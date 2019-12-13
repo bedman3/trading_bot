@@ -5,7 +5,7 @@ WORKDIR /trading_bot
 
 RUN /bin/bash -c "source setup_script.sh"
 
-ENV PYTHONPATH=/trading_bot
+ENV PYTHONPATH=/trading_bot;/trading_bot/venv/lib/python3.6/site-packages
 EXPOSE 8000
 
 RUN export
