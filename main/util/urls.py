@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
@@ -30,4 +32,4 @@ def get_url_patterns() -> list:
     for class_view in class_view_list:
         urlpatterns.append(path(class_view.url, class_view.as_view()))
 
-    return urlpatterns
+    return urlpatterns + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
