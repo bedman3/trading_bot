@@ -131,4 +131,4 @@ dmypy.json
 # Custom ignore
 .idea/
 X509-cert-7016541525481827496.pem
-TD_Notebook/config.py
+TD_Notebook/
