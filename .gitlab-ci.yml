@@ -1,0 +1,41 @@
+stages:
+  - build
+  - deploy
+
+docker-build-master:
+  # Official docker image.
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/trading_bot:latest" .
+    - docker push "$CI_REGISTRY_IMAGE/trading_bot:latest"
+  only:
+    - master
+
+docker-build-uat:
+  # Official docker image.
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/trading_bot:$CI_COMMIT_REF_SLUG" .
+    - docker push "$CI_REGISTRY_IMAGE/trading_bot:$CI_COMMIT_REF_SLUG"
+  only:
+    - uat
+
+deploy-to-aws:
+  image: google/cloud-sdk:slim
+  stage: deploy
+  script:
+    - echo "haven't finished"
+#    - gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file $GCLOUD_AUTH_FILE
+#    - gcloud compute instances update-container personal-website --container-image registry.gitlab.com/bedman3/personal-webpage/frontend:latest --zone us-central1-a --project $GCLOUD_PROJECT
+  only:
+    - master
