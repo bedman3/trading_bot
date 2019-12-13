@@ -9,6 +9,6 @@ RUN export
 ENV PYTHONPATH=/trading_bot
 EXPOSE 8000
 
-RUN export
+RUN /bin/bash -c "export"
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
