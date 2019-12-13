@@ -10,4 +10,4 @@ RUN ./download_chromedriver.sh
 
 EXPOSE 8000
 
-CMD ["uwsgi", "-ini", "uwsgi.ini"]
+CMD ["uwsgi", "--ini", "uwsgi.ini"]
