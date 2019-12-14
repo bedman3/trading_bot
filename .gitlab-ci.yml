@@ -1,4 +1,5 @@
 stages:
+  - test
   - build
   - deploy
 
@@ -29,6 +30,13 @@ docker-build-uat:
     - docker push "$CI_REGISTRY_IMAGE/trading_bot:$CI_COMMIT_REF_SLUG"
   only:
     - uat
+
+unit-test:
+  stage: test
+  image: python
+  script:
+    - pip install pytest
+    - pytest test/
 
 deploy-to-aws:
   image: google/cloud-sdk:slim
