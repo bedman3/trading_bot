@@ -7,6 +7,7 @@ ENV PYTHONPATH=/trading_bot
 RUN pip install -r requirements.txt
 RUN chmod +x ./download_chromedriver.sh
 RUN ./download_chromedriver.sh
+RUN mkdir -p main/static
 RUN python manage.py collectstatic --no-input
 
 EXPOSE 8000
