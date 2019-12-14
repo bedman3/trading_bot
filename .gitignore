@@ -133,3 +133,6 @@ dmypy.json
 X509-cert-7016541525481827496.pem
 TD_Notebook/
 main/static/
+export_secret.sh
+!*.secret
+main/config/secrets_local.json

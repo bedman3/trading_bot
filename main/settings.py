@@ -13,21 +13,22 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from main.util.get_env.django_settings_env import get_debug_from_env
+from main.util.get_env.secrets_model import get_secrets_model_from_env
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+SECRETS_MODEL = get_secrets_model_from_env()
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'h5t1tsuork28^h!#j@75s4(1!i!%6k=wzo!o#%e29)+!c@**0y'
+SECRET_KEY = SECRETS_MODEL.DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-GET_ENV_DEBUG = os.environ.get("DEBUG", False)
-DEBUG = False
-if isinstance(GET_ENV_DEBUG, bool):
-    DEBUG = GET_ENV_DEBUG
-elif isinstance(GET_ENV_DEBUG, str) and GET_ENV_DEBUG.lower() == 'true':
-    DEBUG = True
+DEBUG = get_debug_from_env()
 
 ALLOWED_HOSTS = None
 
@@ -91,8 +92,12 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': SECRETS_MODEL.DJANGO_DB_NAME,
+        'USER': SECRETS_MODEL.DJANGO_DB_USERNAME,
+        'PASSWORD': SECRETS_MODEL.DJANGO_DB_PASSWORD,
+        'HOST': SECRETS_MODEL.DJANGO_DB_HOST,
+        'PORT': SECRETS_MODEL.DJANGO_DB_PORT,
     }
 }
 
