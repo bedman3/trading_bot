@@ -3,6 +3,7 @@ import os
 
 from main.config.config import PUBLIC_CONFIG
 from main.util.encrypt.config_crypter import ConfigCrypter
+from main.util.get_env.secrets_key import get_secrets_key_from_env
 
 
 class SecretsModel:
@@ -55,9 +56,18 @@ class SecretsModel:
         if auto_import:
             self.import_secrets_from_config_file(self._encrypted)
 
-    def import_secrets_from_config_file(self, encrypted: bool = True) -> None:
-        if encrypted and (self._read_only or not self._has_keys()):
+    def import_secrets_from_config_file(self, encrypted: bool = None) -> None:
+        encrypted_local = None
+        if encrypted is None:
+            encrypted_local = self._encrypted
+        else:
+            encrypted_local = encrypted
+
+        if encrypted_local and self._read_only:
             raise ValueError('Read only mode does not support de/encryption, please use keys')
+
+        if encrypted_local and not self._has_keys():
+            raise ValueError('Model cannot decrypt secrets without keys')
 
         with open(self._secrets_path) as json_file:
             data: dict = json.load(json_file)
@@ -70,7 +80,7 @@ class SecretsModel:
         for cls_member in self._cls_members:
             value = data.get(cls_member)
 
-            if encrypted:
+            if encrypted_local:
                 value = self.__crypter.decrypt_value(value)
 
             self.set_config(cls_member, value)
@@ -127,6 +137,14 @@ class SecretsModel:
 
     def _has_keys(self) -> bool:
         return self.__crypter is not None
+
+    def reload_crypter_keys_from_env(self) -> bool:
+        get_keys = get_secrets_key_from_env()
+        if get_keys is None:
+            return False
+        else:
+            self.update_crypter(ConfigCrypter(keys=get_keys))
+            return True
 
     def update_crypter(self, crypter):
         if isinstance(crypter, ConfigCrypter):

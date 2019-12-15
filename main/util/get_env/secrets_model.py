@@ -13,8 +13,4 @@ def get_secrets_model_from_env() -> SecretsModel or None:
         return SecretsModel(encrypted=False, secrets_path=PUBLIC_CONFIG.DEBUG_SECRETS_DIR,
                             read_only=True)
     else:
-        # return SecretsModel()
-        try:
-            return SecretsModel()
-        except ValueError:
-            return None
+        return SecretsModel(auto_import=False)

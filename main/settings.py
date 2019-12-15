@@ -10,6 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+from main.util.logger.init_logger import get_logger
+
+logger = get_logger(__name__)
+
 import os
 
 from main.util.get_env.django_settings_env import get_debug_from_env
@@ -33,11 +37,13 @@ ALLOWED_HOSTS = None
 DEBUG = get_debug_from_env()
 
 if DEBUG:
+    logger.info('Service in debug mode')
     ALLOWED_HOSTS = [
         '127.0.0.1',
         'localhost'
     ]
 else:
+    logger.info('Service not in debug mode')
     ALLOWED_HOSTS = [
         '127.0.0.1',
         'localhost',

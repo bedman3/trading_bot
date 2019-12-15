@@ -4,3 +4,4 @@ drf-yasg>=1.17.0
 uwsgi>=2.0.18
 pytest>=5.3.2
 cryptography>=2.8
+psycopg2>=2.8.4
