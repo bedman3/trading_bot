@@ -12,25 +12,25 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from main.util.get_env.django_settings_env import get_debug_from_env
-from main.util.get_env.secrets_model import get_secrets_model_from_env
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# from main.service.background import SECRETS_MODEL
+# SECRETS_MODEL = None
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-SECRETS_MODEL = get_secrets_model_from_env()
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = SECRETS_MODEL.DJANGO_SECRET_KEY
+SECRET_KEY = 'n97(^2#5#r^()72oanwqmml8$pg+pg=do06&loyabn8$1pz7ag'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_debug_from_env()
 
 ALLOWED_HOSTS = None
+
+DEBUG = get_debug_from_env()
 
 if DEBUG:
     ALLOWED_HOSTS = [
@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_yasg',
+    'background_task'
 ]
 
 MIDDLEWARE = [
@@ -89,6 +90,10 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+
+from main.service.background import SECRETS_MODEL
+
+# print(SECRETS_MODEL.DJANGO_DB_PORT)
 
 DATABASES = {
     'default': {
@@ -152,4 +157,3 @@ if not DEBUG:
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "main/static"),
 ]
-

@@ -10,6 +10,11 @@ def get_secrets_model_from_env() -> SecretsModel or None:
     if 'pytest' in sys.modules:
         return None
     elif DEBUG:
-        return SecretsModel(encrypted=False, secrets_path=PUBLIC_CONFIG.DEBUG_SECRETS_DIR)
+        return SecretsModel(encrypted=False, secrets_path=PUBLIC_CONFIG.DEBUG_SECRETS_DIR,
+                            read_only=True)
     else:
-        return SecretsModel()
+        # return SecretsModel()
+        try:
+            return SecretsModel()
+        except ValueError:
+            return None
