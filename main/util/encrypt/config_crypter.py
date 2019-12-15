@@ -24,3 +24,7 @@ class ConfigCrypter:
         first_decrypted_text = self.__fernet_2.decrypt(text.encode())
         return self.__fernet_1.decrypt(first_decrypted_text).decode()
 
+    @staticmethod
+    def generate_random_keys():
+        keys = [Fernet.generate_key().decode(), Fernet.generate_key().decode()]
+        return keys

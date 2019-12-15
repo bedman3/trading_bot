@@ -26,13 +26,13 @@ class SecretsModel:
 
         if isinstance(crypt, list):
             self.__crypter: ConfigCrypter = ConfigCrypter(keys=crypt)
-        elif crypt is None:
-            if self._read_only:
-                self.__crypter: None = None
-            else:
-                self.__crypter: ConfigCrypter = ConfigCrypter()
-        else:
+        elif isinstance(crypt, ConfigCrypter):
             self.__crypter: ConfigCrypter = crypt
+        else:
+            try:
+                self.__crypter: ConfigCrypter = ConfigCrypter()
+            except ValueError:
+                self.__crypter = None
 
         self.DJANGO_SECRET_KEY: str = None
         self.DJANGO_DB_NAME: str = None
@@ -56,7 +56,7 @@ class SecretsModel:
             self.import_secrets_from_config_file(self._encrypted)
 
     def import_secrets_from_config_file(self, encrypted: bool = True) -> None:
-        if encrypted and self._read_only:
+        if encrypted and (self._read_only or not self._has_keys()):
             raise ValueError('Read only mode does not support de/encryption, please use keys')
 
         with open(self._secrets_path) as json_file:
@@ -78,6 +78,9 @@ class SecretsModel:
         self._imported = True
 
     def export_secrets_to_config_file(self, encrypt: bool = True, output_path: str = None) -> None:
+        if not self._has_keys() and encrypt:
+            raise ValueError('Crypters not initialized')
+
         if self._read_only:
             raise ValueError('Read only mode does not support export')
 
@@ -121,3 +124,12 @@ class SecretsModel:
                 return False
 
         return True
+
+    def _has_keys(self) -> bool:
+        return self.__crypter is not None
+
+    def update_crypter(self, crypter):
+        if isinstance(crypter, ConfigCrypter):
+            self.__crypter = crypter
+        else:
+            raise ValueError('Crypter invalid, remain the original crypter')

@@ -2,11 +2,15 @@ import os
 import shutil
 
 import pytest
+from cryptography.fernet import InvalidToken
+
 from main.model.config import SecretsModel
 from rest_framework.utils import json
 from test.test_config import TEST_CONFIG_FILES_BASE_DIR, PSEUDO_KEY_1, PSEUDO_KEY_2
 
 # init pseudo keys else exception will raise in SecretsModel
+from main.util.encrypt.config_crypter import ConfigCrypter
+
 pseudo_keys = [PSEUDO_KEY_1, PSEUDO_KEY_2]
 
 TEST_JSON = [
@@ -98,6 +102,8 @@ TEST_JSON = [
 
 ]
 
+TEMP_OUTPUT_PATH = os.path.join(TEST_CONFIG_FILES_BASE_DIR, 'temp_output_file.json')
+
 
 @pytest.fixture(scope='module')
 def setup():
@@ -116,8 +122,6 @@ def setup():
 
 
 def test_secrets_model_default():
-    global pseudo_keys
-
     # first simple init
     secrets_model = SecretsModel(auto_import=False, crypt=pseudo_keys)
     assert secrets_model._encrypted
@@ -137,8 +141,6 @@ def test_secrets_model_default():
 
 
 def test_import_secrets_from_file(setup):
-    global pseudo_keys
-
     # first input <INPUT_HERE> as value
     TEMP_CONFIG_FILE_DIR = os.path.join(TEST_CONFIG_FILES_BASE_DIR,
                                         'test_import_secrets_unencrypted_input_here.json')
@@ -191,8 +193,6 @@ def test_import_secrets_from_file(setup):
 
 
 def test_export_secrets_to_file(setup):
-    global pseudo_keys
-
     # first input <INPUT_HERE> as value
     TEMP_CONFIG_FILE_DIR = os.path.join(TEST_CONFIG_FILES_BASE_DIR,
                                         'test_import_secrets_unencrypted_input_here.json')
@@ -203,8 +203,6 @@ def test_export_secrets_to_file(setup):
     for cls_member in secrets_model._cls_members:
         assert getattr(secrets_model, cls_member) == '<INPUT_HERE>'
 
-    TEMP_OUTPUT_PATH = os.path.join(TEST_CONFIG_FILES_BASE_DIR,
-                                    'temp_output_file.json')
     secrets_model.export_secrets_to_config_file(encrypt=False, output_path=TEMP_OUTPUT_PATH)
 
     new_secrets_model = SecretsModel(encrypted=False, secrets_path=TEMP_OUTPUT_PATH,
@@ -237,4 +235,80 @@ def test_secrets_model_read_only(setup):
 
     with pytest.raises(ValueError):
         secrets_model.import_secrets_from_config_file(encrypted=True)
+
+
+def test_secrets_model_keys_error(setup):
+    TEMP_CONFIG_FILE_DIR = os.path.join(TEST_CONFIG_FILES_BASE_DIR,
+                                        'test_import_secrets_unencrypted_testing.json')
+
+    secrets_model = SecretsModel(encrypted=False, secrets_path=TEMP_CONFIG_FILE_DIR,
+                                 crypt=pseudo_keys)
+    secrets_model.export_secrets_to_config_file(output_path=TEMP_OUTPUT_PATH)
+
+    # build new secrets model without keys
+    new_secrets_model = SecretsModel(encrypted=True, secrets_path=TEMP_OUTPUT_PATH,
+                                     auto_import=False)
+
+    # no exception raise without decrypting files
+    new_secrets_model.import_secrets_from_config_file(encrypted=False)
+
+    # exception raise to decrypt files without keys
+    with pytest.raises(ValueError):
+        new_secrets_model.import_secrets_from_config_file()
+
+    # no exception raise without encrypting files
+    new_secrets_model.export_secrets_to_config_file(encrypt=False)
+
+    # exception raise to encrypt files without keys
+    with pytest.raises(ValueError):
+        new_secrets_model.export_secrets_to_config_file()
+
+
+def test_secrets_model_update_crypter(setup):
+    random_keys = ConfigCrypter.generate_random_keys()
+
+    TEMP_CONFIG_FILE_DIR = os.path.join(TEST_CONFIG_FILES_BASE_DIR,
+                                        'test_import_secrets_unencrypted_testing.json')
+
+    # undecrypt import
+    secrets_model_with_keys = SecretsModel(encrypted=False, secrets_path=TEMP_CONFIG_FILE_DIR,
+                                           crypt=pseudo_keys)
+
+    # encrypt export
+    secrets_model_with_keys.export_secrets_to_config_file(encrypt=True,
+                                                          output_path=TEMP_OUTPUT_PATH)
+
+    # new model with same key should be able to descrypt
+    new_secrets_model = SecretsModel(encrypted=True, secrets_path=TEMP_OUTPUT_PATH,
+                                     crypt=pseudo_keys)
+
+    for cls_member in new_secrets_model._cls_members:
+        assert new_secrets_model.get_config(cls_member) == 'testing'
+
+    # model without key would be able to read but not the real input
+    secrets_model_without_keys = SecretsModel(encrypted=False, secrets_path=TEMP_OUTPUT_PATH)
+
+    for cls_member in secrets_model_without_keys._cls_members:
+        assert secrets_model_without_keys.get_config(cls_member) != 'testing'
+
+    # no keys to perform encryption should raise exception
+    with pytest.raises(ValueError):
+        secrets_model_without_keys.import_secrets_from_config_file(encrypted=True)
+
+    # change key to pseudo_keys
+    # exception should not raise
+    secrets_model_without_keys.update_crypter(ConfigCrypter(pseudo_keys))
+
+    secrets_model_without_keys.import_secrets_from_config_file(encrypted=True)
+
+    for cls_member in secrets_model_without_keys._cls_members:
+        assert secrets_model_without_keys.get_config(cls_member) == 'testing'
+
+    # change key to random_keys, should not be able to decrypt correctly
+    # exception should not raise
+    secrets_model_without_keys.update_crypter(ConfigCrypter(random_keys))
+
+    with pytest.raises(InvalidToken):
+        secrets_model_without_keys.import_secrets_from_config_file(encrypted=True)
+
 

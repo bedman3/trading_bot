@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from cryptography.fernet import Fernet
 
 from main.util.encrypt.config_crypter import ConfigCrypter
 from test.test_config import PSEUDO_KEY_1, PSEUDO_KEY_2
@@ -43,3 +44,21 @@ def test_config_crypto_function(setup):
 def test_config_crypter_no_keys(setup):
     with pytest.raises(ValueError):
         ConfigCrypter()
+
+
+def test_config_crypter_generate_keys(setup):
+    keys = ConfigCrypter.generate_random_keys()
+
+    assert len(keys) == 2
+    assert len(keys[0]) == len(keys[1])
+
+    # exception should not raise
+    Fernet(keys[0].encode())
+    Fernet(keys[1].encode())
+
+    assert True
+
+    # exception should not raise
+    ConfigCrypter(keys=keys)
+
+    assert True

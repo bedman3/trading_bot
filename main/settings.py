@@ -93,7 +93,7 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 from main.service.background import SECRETS_MODEL
 
-# print(SECRETS_MODEL.DJANGO_DB_PORT)
+print(SECRETS_MODEL.DJANGO_DB_PORT)
 
 DATABASES = {
     'default': {
