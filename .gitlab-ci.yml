@@ -33,17 +33,16 @@ docker-build-uat:
 
 unit-test:
   stage: test
-  image: python
+  image: python:alpine
   script:
     - pip install -r requirements.txt
     - pytest test/
 
 deploy-to-aws:
-  image: google/cloud-sdk:slim
+  image: python:alpine
   stage: deploy
   script:
-    - echo "haven't finished"
-#    - gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file $GCLOUD_AUTH_FILE
-#    - gcloud compute instances update-container personal-website --container-image registry.gitlab.com/bedman3/personal-webpage/frontend:latest --zone us-central1-a --project $GCLOUD_PROJECT
+    - pip install awscli
+    - aws ecs update-service --region ap-south-1 --service $ECS_SERVICE --cluster $ECS_CLUSTER --force-new-deployment
   only:
     - master
