@@ -33,13 +33,13 @@ docker-build-uat:
 
 unit-test:
   stage: test
-  image: python:alpine
+  image: python
   script:
     - pip install -r requirements.txt
     - pytest test/
 
 deploy-to-aws:
-  image: python:alpine
+  image: python
   stage: deploy
   script:
     - pip install awscli
