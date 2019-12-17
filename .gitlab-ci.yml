@@ -43,6 +43,6 @@ deploy-to-aws:
   stage: deploy
   script:
     - pip install awscli
-    - aws ecs update-service --region ap-south-1 --service $ECS_SERVICE --cluster $ECS_CLUSTER --force-new-deployment > dev/null
+    - aws ecs update-service --region ap-south-1 --service $ECS_SERVICE --cluster $ECS_CLUSTER --force-new-deployment > /dev/null
   only:
     - master
