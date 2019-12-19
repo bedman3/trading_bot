@@ -7,13 +7,18 @@ from pika.channel import Channel
 if __name__ == '__main__':
     ws = create_connection("wss://api.tiingo.com/iex")
 
-    # connection = pika.BlockingConnection(pika.ConnectionParameters('amqp://martin:martin@vpn.desktop.martinwongsk.com:5672/'))
+    RABBITMQ_EXCHANGE_NAME = 'iex_rabbitmq_exchange'
+    RABBITMQ_QUEUE_NAME = 'iex_rabbitmq_queue'
 
     credentials = pika.PlainCredentials('martin', 'martin')
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters('vpn.desktop.martinwongsk.com', 5672, '/', credentials))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('desktop.martinwongsk.com', 5672, '/', credentials))
+    # connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', 5672, credentials=credentials))
     channel: Channel = connection.channel()
-    channel.queue_declare('')
+    channel.exchange_declare(RABBITMQ_EXCHANGE_NAME)
+    channel.queue_bind(exchange=RABBITMQ_EXCHANGE_NAME, queue=RABBITMQ_QUEUE_NAME   )
+    channel.queue_declare(RABBITMQ_QUEUE_NAME, durable=True)
+
 
     subscribe = {
         'eventName': 'subscribe',
@@ -24,9 +29,17 @@ if __name__ == '__main__':
     }
 
     ws.send(json.dumps(subscribe))
+    print('Receiving data')
     while True:
         with open('iex_191219.txt', 'a+') as f:
             recv_wss = ws.recv()
             if 'data' in recv_wss:
                 f.write(f'{recv_wss}\n')
-                print(recv_wss)
+                channel.basic_publish(
+                    exchange=RABBITMQ_EXCHANGE_NAME,
+                    routing_key=RABBITMQ_QUEUE_NAME,
+                    body=recv_wss,
+                    properties=pika.BasicProperties(
+                        delivery_mode=2
+                    )
+                )
