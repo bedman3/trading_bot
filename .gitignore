@@ -137,3 +137,4 @@ export_secret.sh
 !*.secret
 main/config/secrets_local.json
 docker_local.sh
+docker_local_rabbitmq.sh
