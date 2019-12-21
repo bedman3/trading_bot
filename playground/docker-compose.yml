@@ -3,8 +3,22 @@ services:
   influxdb:
     image: "influxdb:1.7-alpine"
     ports:
-    - "8086:8086"
-    - "8083:8083"
-    - "2003:2003"
+      # The API for InfluxDB is served on port 8086
+      - "8086:8086"
+      - "8082:8082"
     volumes:
-    - /home/martin/Projects/trading_bot/playground/influxdb:/var/lib/influxdb
+      # Mount for influxdb data directory
+      - /home/martin/Projects/trading_bot/playground/influxdb/data:/var/lib/influxdb
+      # Mount for influxdb configuration
+      - /home/martin/Projects/trading_bot/playground/influxdb/config/:/etc/influxdb/
+  chronograf:
+    image: chronograf:latest
+    volumes:
+      # Mount for chronograf database
+      - ./chronograf/data/:/var/lib/chronograf/
+    ports:
+      # The WebUI for Chronograf is served on port 8888
+      - "8888:8888"
+    depends_on:
+      - influxdb
+
