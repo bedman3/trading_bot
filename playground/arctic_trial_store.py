@@ -18,7 +18,7 @@ if __name__ == '__main__':
     print('set index to Date')
     iex_df.set_index('Date', inplace=True)
     print('convert index')
-    iex_df.index = pd.to_datetime(iex_df.index)
+    iex_df.index = pd.to_datetime(iex_df.index, infer_datetime_format=True)
 
     print('initialize semaphore')
     semaphore = threading.Semaphore(10)
