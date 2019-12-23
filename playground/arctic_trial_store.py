@@ -43,7 +43,7 @@ if __name__ == '__main__':
     print('Start')
     for symbol in set_symbols:
         print(symbol)
-        thread = threading.Thread(target=process_symbol, args=symbol)
+        thread = threading.Thread(target=process_symbol, args=(symbol, ))
         thread.start()
         threads.append(thread)
 
