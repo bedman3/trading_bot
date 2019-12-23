@@ -1,24 +1,22 @@
-version: "3"
+version: "3.1"
 services:
-  influxdb:
-    image: "influxdb:1.7-alpine"
+  mongo:
+    image: mongo
+    restart: always
     ports:
-      # The API for InfluxDB is served on port 8086
-      - "8086:8086"
-      - "8082:8082"
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=martin
+      - MONGO_INITDB_ROOT_PASSWORD=martin
+      - MONGO_INITDB_DATABASE=trading-bot-mongodb
     volumes:
-      # Mount for influxdb data directory
-      - /home/martin/Projects/trading_bot/playground/influxdb/data:/var/lib/influxdb
-      # Mount for influxdb configuration
-      - /home/martin/Projects/trading_bot/playground/influxdb/config/:/etc/influxdb/
-  chronograf:
-    image: chronograf:latest
-    volumes:
-      # Mount for chronograf database
-      - ./chronograf/data/:/var/lib/chronograf/
+      - /home/martin/mongodb:/data/db
+  mongo-express:
+    image: mongo-express
+    restart: always
     ports:
-      # The WebUI for Chronograf is served on port 8888
-      - "8888:8888"
-    depends_on:
-      - influxdb
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=martin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=martin
 

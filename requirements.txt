@@ -8,3 +8,5 @@ psycopg2>=2.8.4
 pytest-mock>=1.13.0
 websocket_client>=0.56.0
 pika>=1.1.0
+pymongo>=3.10.0
+arctic>=1.79.3
