@@ -13,10 +13,14 @@ if __name__ == '__main__':
                'Ask Price', 'Ask Size', 'Last Price', 'Last Size', 'Halted', 'After Hours',
                'Intermarket Sweep Order (ISO)', 'Oddlot', 'NMS Rule 611']
 
+    print('reading csv')
     iex_df = pd.read_csv('iex_201219_parse.txt', header=None, names=columns)
+    print('set index to Date')
     iex_df.set_index('Date', inplace=True)
+    print('convert index')
     iex_df.index = pd.to_datetime(iex_df.index)
 
+    print('initialize semaphore')
     semaphore = threading.Semaphore(10)
     threads = []
     counter = 1
@@ -34,10 +38,10 @@ if __name__ == '__main__':
         counter += 1
         semaphore.release()
 
+    print('get symbols set')
     set_symbols = set(filter(lambda x: x == x, iex_df['Ticker']))
     print('Start')
-    for symbol in set_symbols:ls
-    
+    for symbol in set_symbols:
         print(symbol)
         thread = threading.Thread(target=process_symbol, args=symbol)
         thread.start()
