@@ -23,27 +23,27 @@ if __name__ == '__main__':
     print('initialize semaphore')
     semaphore = threading.Semaphore(10)
     threads = []
-    counter = 1
 
-    def process_symbol(symbol):
+    def process_symbol(symbol_i, symbol):
         semaphore.acquire()
-        global counter
-        print(counter, symbol)
+        print(symbol_i, symbol)
         set_df = iex_df[iex_df['Ticker'] == symbol]
         try:
             test_tick_store_lib.write(symbol, set_df)
         except Exception as e:
             print(e)
             # pass
-        counter += 1
         semaphore.release()
 
     print('get symbols set')
     set_symbols = set(filter(lambda x: x == x, iex_df['Ticker']))
+    list_symbols = list(set_symbols)
+    dict_symbols = {x: list_symbols[x] for x in range(len(list_symbols))}
+
     print('Start')
-    for symbol in set_symbols:
-        print(symbol)
-        thread = threading.Thread(target=process_symbol, args=(symbol, ))
+    for symbol_i in dict_symbols:
+        # print(symbol_i, dict_symbols[symbol_i])
+        thread = threading.Thread(target=process_symbol, args=(symbol_i, dict_symbols[symbol_i]))
         thread.start()
         threads.append(thread)
 
