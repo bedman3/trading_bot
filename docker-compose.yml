@@ -1,0 +1,12 @@
+version: "3.3"
+services:
+  trading-bot-backend:
+    image: registry.gitlab.com/bedman3/trading_bot/trading_bot:latest
+    ports:
+      - "80:8000"
+  trading-bot-database:
+    image: influxdb:latest
+    ports:
+      - "8880:8086"
+    volumes:
+      - ./influxdb:/var/lib/influxdb

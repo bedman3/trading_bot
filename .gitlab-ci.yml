@@ -38,11 +38,16 @@ unit-test:
     - pip install -r requirements.txt
     - pytest test/
 
-deploy-to-aws:
-  image: python
+deploy-to-do-droplets:
   stage: deploy
   script:
-    - pip install awscli
-    - aws ecs update-service --region ap-south-1 --service $ECS_SERVICE --cluster $ECS_CLUSTER --force-new-deployment > /dev/null
+    - eval "$(ssh-agent -s)"
+    - echo "$GITLAB_RUNNER_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - echo "$GITLAB_RUNNER_PRIVATE_KEY" > gitlab_runner
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - mv gitlab_runner ~/.ssh/
+    - scp -o StrictHostKeyChecking=no -o LogLevel=QUIET update_containers.sh server_init_setup_script.sh docker-compose.yml core@$DO_DROPLET_SSH_URL:~/
+    - ssh -t -t -o StrictHostKeyChecking=no -o LogLevel=QUIET core@$DO_DROPLET_SSH_URL "bash /home/core/update_containers.sh"
   only:
     - master
