@@ -10,3 +10,10 @@ services:
       - "8880:8086"
     volumes:
       - ./influxdb:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=trading-bot
+      - INFLUXDB_HTTP_AUTH_ENABLED=true
+      - INFLUXDB_ADMIN_USER=${INFLUXDB_ADMIN_USER}
+      - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_ADMIN_PASSWORD}
+      - INFLUXDB_USER=${INFLUXDB_USER}
+      - INFLUXDB_USER_PASSWORD=${INFLUXDB_USER_PASSWORD}
